@@ -9,8 +9,13 @@ def get_links_from_sheet():
     creds = ServiceAccountCredentials.from_json_keyfile_name('path_to_credentials.json', scope)
     client = gspread.authorize(creds)
     sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1NdMsw3amImspKbzL25Ay6Xf1JWyPlL9PvMAh2u6eTfQ/edit?usp=sharing").sheet1
-    links = sheet.col_values(1)
-    return sheet, links[1:]
+    headers = sheet.row_values(1)
+    if 'Link' in headers:
+        col_index = headers.index('Link') + 1
+        links = sheet.col_values(col_index)[1:]
+        return sheet, links
+    else:
+        raise ValueError('"Links" column not found in the sheet.')
 
 def scrape_data(link):
     headers = {
